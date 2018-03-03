@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CatDog WebSocket</title>
+<title>GenericClassifier</title>
 <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="/main.css" rel="stylesheet">
 <script src="/webjars/jquery/jquery.min.js"></script>
@@ -16,25 +16,74 @@
 			enable Javascript and reload this page!</h2>
 	</noscript>
 	<div id="main-content" class="container">
-		<div class="row">
-			<div class="col-md-6">
-				<form class="form-inline">
-					<div class="form-group">
-						<label for="connect">WebSocket connection:</label>
-						<button id="connect" class="btn btn-default" type="submit">Connect</button>
-						<button id="disconnect" class="btn btn-default" type="submit"
-							disabled="disabled">Disconnect</button>
-					</div>
-				</form>
+		<div class="jumbotron">
+			<div class="row">
+				<div class="col-sm-2">
+					<br /> <img src="/assets/images/machine_memos_logo.svg"
+						width="110px" />
+				</div>
+				<div class="col-sm-10">
+					<h1>MACHINE MEMOS</h1>
+					<h3>Realtime Generic Image Classification Demo for JavaLand
+						2018</h3>
+				</div>
 			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-md-12">
-					<video autoplay></video>
+			<br />
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-11">
+					<canvas id='mainCanvas' width="640px" height="480px"></canvas>
+				</div>
 			</div>
-		</div>
+			<br />
+			<div class="row">
+				<div class="col-md-6">
+					<form class="form-inline">
+						<div class="form-group">
+							<label for="connect">WebSocket connection:</label>
+							<button id="connect" class="btn btn-default" type="submit">Connect</button>
+							<button id="disconnect" class="btn btn-default" type="submit"
+								disabled="disabled">Disconnect</button>
+						</div>
+					</form>
+				</div>
+			</div>
 
+			<div class="row">
+				<h3>Classification Table</h3>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th class="col-md-8">Label</th>
+							<th class="col-md-4">Probability in %</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="col-md-8" id="label_1">_</td>
+							<td class="col-md-4" id="probability_1">_</td>
+						</tr>
+						<tr>
+							<td class="col-md-8" id="label_2">_</td>
+							<td class="col-md-4" id="probability_2">_</td>
+						</tr>
+						<tr>
+							<td class="col-md-8" id="label_2">_</td>
+							<td class="col-md-4" id="probability_3">_</td>
+						</tr>
+						<tr>
+							<td class="col-md-8" id="label_2">_</td>
+							<td class="col-md-4" id="probability_4">_</td>
+						</tr>
+						<tr>
+							<td class="col-md-8" id="label_2">_</td>
+							<td class="col-md-4" id="probability_5">_</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</div>
 	</div>
 </body>
 </html>

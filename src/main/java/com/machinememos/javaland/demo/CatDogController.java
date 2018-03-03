@@ -8,42 +8,32 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class CatDogController {
 
-	private static final String IMAGE_PREFIX = "catdog:";
+	private static final String IMAGE_PREFIX = "data:image/jpeg;base64,";
 	private static final String MESSAGE_LOADED = "Image downloaded and sent to kafka cluster";
 	private static final String MESSAGE_UNABLE_TO_LOAD = "Unable to download image. Check if your url is correct";
 	
 	@Autowired
-	private KafkaMessageProducer messageProducer;
+	private KafkaMessageProducer kafkaMessageProducer;
+	
+	@Autowired
+	private ImageConverter imageConverter;
 	
     @MessageMapping("/usermessage")
     @SendTo("/topic/catdog")
-    public CatDogWebSocketDTO hangleUserMessage(UserMessage userMessage) throws Exception {
+    public CatDogWebSocketDTO hangleUserMessage(String imageDataUrl) throws Exception {
 		CatDogWebSocketDTO catDogWebSocketDTO = new CatDogWebSocketDTO();
 		
-		if ( userMessage.getMessage().startsWith(IMAGE_PREFIX)){
+		if ( imageDataUrl.startsWith(IMAGE_PREFIX)){
 			
-			loadImageAndPrepareResponse(catDogWebSocketDTO, userMessage.getMessage());
-			
-		} else {
-			catDogWebSocketDTO.setContent(userMessage.getMessage());
-		}
+			String originalImageBase64JPEG = imageDataUrl.substring(IMAGE_PREFIX.length());
+			String resizedImageBase64PNG = imageConverter.toBase64EncodedPNG(originalImageBase64JPEG);
+			kafkaMessageProducer.publish(resizedImageBase64PNG);
 		
+		}
+		catDogWebSocketDTO.setLabel("hello");
 		return catDogWebSocketDTO;
     }
-
-	private void loadImageAndPrepareResponse(CatDogWebSocketDTO catDogWebSocketDTO, String userMessage) {
-		
-		String url = userMessage.replace(IMAGE_PREFIX, "");
-		
-		CatDogImageLoader loader = new CatDogImageLoader(url);
-		loader.load();
-		if(loader.isLoaded()){
-			catDogWebSocketDTO.setContent(MESSAGE_LOADED);
-			messageProducer.publish(CatDogKafkaDTO.base64CatDogEvent(url, loader.getImageBytes()));
-		} else {
-			catDogWebSocketDTO.setContent(MESSAGE_UNABLE_TO_LOAD);
-		}
-	}
 	
-
+    
+		
 }
