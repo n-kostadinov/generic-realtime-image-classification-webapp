@@ -6,7 +6,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class CatDogController {
+public class RealTimeClassificationController {
 
 	private static final String IMAGE_PREFIX = "data:image/jpeg;base64,";
 	private static final String MESSAGE_LOADED = "Image downloaded and sent to kafka cluster";
@@ -18,8 +18,8 @@ public class CatDogController {
 	@Autowired
 	private ImageConverter imageConverter;
 	
-    @MessageMapping("/usermessage")
-    @SendTo("/topic/catdog")
+    @MessageMapping("/webcamimage")
+    @SendTo("/topic/realtimeclassification")
     public CatDogWebSocketDTO hangleUserMessage(String imageDataUrl) throws Exception {
 		CatDogWebSocketDTO catDogWebSocketDTO = new CatDogWebSocketDTO();
 		

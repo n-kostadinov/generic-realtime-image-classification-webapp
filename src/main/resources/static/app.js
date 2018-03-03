@@ -6,7 +6,8 @@ var mainCanvas;
 window.onload = initialize;
 
 function initImageCapture(){
-	
+	// Start WebCam View on Browser and init ImageCapture
+	// check https://developers.google.com/web/updates/2016/12/imagecapture
 	navigator.mediaDevices.getUserMedia({video: true})
 	  .then(mediaStream => {
 		  
@@ -21,6 +22,12 @@ function initialize() {
 	initImageCapture()
 	
 	mainCanvas = document.querySelector('#mainCanvas');
+	
+    $("form").on('submit', function (event) {
+    	event.preventDefault();
+    });
+    $( "#connect" ).click(function() { connect(); });
+    $( "#disconnect" ).click(function() { disconnect(); });
 	
 	setInterval(updateCanvasAndSendImage, 1000 / FRAMES_PER_SECOND)
 }
@@ -42,7 +49,7 @@ function updateCanvasAndSendImage() {
 function sendJPEGImage(){
 	
 	if( stompClient ) {
-		stompClient.send("/app/usermessage", {}, mainCanvas.toDataURL("image/jpeg"));
+		stompClient.send("/app/webcamimage", {}, mainCanvas.toDataURL("image/jpeg"));
 	}
 	
 }
@@ -64,26 +71,17 @@ function drawCanvas(img) {
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
-    if (connected) {
-        $("#conversation").show();
-    }
-    else {
-        $("#conversation").hide();
-    }
-    $("#catdogboard").html("");
 }
 
 
 function connect() {
 
-  // Start WebCam View on Browser and init ImageCapture
-  // check https://developers.google.com/web/updates/2016/12/imagecapture
-	var socket = new SockJS('/catdog-websocket');
+	var socket = new SockJS('/websocket');
 	stompClient = Stomp.over(socket);
 	stompClient.connect({}, function (frame) {
 	    setConnected(true);
 	    console.log('Connected: ' + frame);
-	    stompClient.subscribe('/topic/catdog', function (message) {
+	    stompClient.subscribe('/topic/realtimeclassification', function (message) {
 	        console.log(message);
 	    });
 	});
@@ -100,10 +98,7 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendUserMessage() {
-    stompClient.send("/app/usermessage", {}, JSON.stringify({'message': $("#usermessage").val()}));
-}
-
+// refactor
 function showCatDogDTO(unparsed_message) {
 	
 	time = get_time()
@@ -122,18 +117,4 @@ function showCatDogDTO(unparsed_message) {
 	}
 
 }
-
-function get_time() {
-	return new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-}
-
-
-$(function () {
-    $("form").on('submit', function (e) {
-        e.preventDefault();
-    });
-    $( "#connect" ).click(function() { connect(); });
-    $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendUserMessage(); });
-});
 

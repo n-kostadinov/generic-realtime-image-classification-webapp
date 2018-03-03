@@ -19,7 +19,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/catdog-websocket").withSockJS();
+        registry.addEndpoint("/websocket").withSockJS();
     }
     
     @Override

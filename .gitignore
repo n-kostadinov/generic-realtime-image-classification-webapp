@@ -15,6 +15,7 @@ build/
 .classpath
 .project
 .settings
+.springBeans
 
 # IntelliJ IDEA Files #
 
