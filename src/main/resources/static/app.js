@@ -1,4 +1,4 @@
-FRAMES_PER_SECOND = 5;
+FRAMES_PER_SECOND = 2;
 
 var stompClient;
 var imageCapture;
@@ -23,6 +23,7 @@ function initialize() {
 	
 	mainCanvas = document.querySelector('#mainCanvas');
 	
+	// Configure Socket connect / disconnect button
     $("form").on('submit', function (event) {
     	event.preventDefault();
     });
@@ -82,7 +83,7 @@ function connect() {
 	    setConnected(true);
 	    console.log('Connected: ' + frame);
 	    stompClient.subscribe('/topic/realtimeclassification', function (message) {
-	        console.log(message);
+	    	setLabelsAndProbabilities(message)
 	    });
 	});
   
@@ -98,23 +99,21 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-// refactor
-function showCatDogDTO(unparsed_message) {
+function setLabelsAndProbabilities(unparsed_message) {
+
+	label_record = JSON.parse(unparsed_message.body)
 	
-	time = get_time()
-	preffix = "<tr><td>[" + time +"] "
-	suffix = "</td></tr>"
+	$("#label1").html(label_record.label1)
+	$("#label2").html(label_record.label2)
+	$("#label3").html(label_record.label3)
+	$("#label4").html(label_record.label4)
+	$("#label5").html(label_record.label5)
 	
-	message = JSON.parse(unparsed_message.body)
-	if (message.resolved) {
-		$("#catdogboard").prepend(
-		    preffix + "Image processed by Deep-Cat-Dog" + suffix +
-			preffix + "Image as seen by the Neural Network</td></tr>" + suffix + 
-			preffix + "<img height=\"299\" width=\"299\" src=\"" + message.url + "\"/>" + suffix +
-			preffix + "Label: " + message.label + suffix);
-	} else {
-		$("#catdogboard").prepend(preffix + message.content + suffix);
-	}
+	$("#probability1").html(label_record.probability1)
+	$("#probability2").html(label_record.probability2)
+	$("#probability3").html(label_record.probability3)
+	$("#probability4").html(label_record.probability4)
+	$("#probability5").html(label_record.probability5)
 
 }
 

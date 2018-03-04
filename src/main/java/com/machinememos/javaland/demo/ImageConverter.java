@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
@@ -15,26 +14,37 @@ import org.springframework.stereotype.Component;
 @Component
 public final class ImageConverter {
 	
-	private static final int IMG_SIZE = 299;
-	private static final String IMAGE_ENCODE_FORMAT_PNG = "png";
+	private static final int INCEPTION_V3_IMAGE_INPUT_SIZE = 299;
+	private static final String IMAGE_ENCODE_FORMAT_JPG = "jpg";
 	
-	public String toBase64EncodedPNG(String base64EncodedJPEG) throws MalformedURLException, IOException{
+	
+	public String toBase64EncodedPNG(String base64EncodedJPEG) {
 		
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		byte[] jpegData = Base64.getDecoder().decode(base64EncodedJPEG);
-		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(jpegData));
-		BufferedImage resizedImage = resizeImage(originalImage, BufferedImage.TYPE_INT_ARGB, IMG_SIZE, IMG_SIZE);
-		ImageIO.write(resizedImage, IMAGE_ENCODE_FORMAT_PNG, byteArrayOutputStream);
-		return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+		try {
+			
+			return convert(base64EncodedJPEG);
 		
+		} catch(IOException ex){
+			throw new IllegalStateException("Image conversion failed.", ex);
+		}
 		
 	}
 
-	private BufferedImage resizeImage(BufferedImage originalImage, int type, int newWidth, int newHeight) {
+	private String convert(String base64EncodedJPEG) throws IOException {
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		byte[] jpegData = Base64.getDecoder().decode(base64EncodedJPEG);
+		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(jpegData));
+		BufferedImage resizedImage = resizeImage(originalImage);
+		ImageIO.write(resizedImage, IMAGE_ENCODE_FORMAT_JPG, byteArrayOutputStream);
+		return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+	}
+
+	private BufferedImage resizeImage(BufferedImage originalImage) {
 		
-		BufferedImage resizedImage = new BufferedImage(IMG_SIZE, IMG_SIZE, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage resizedImage = 
+				new BufferedImage(INCEPTION_V3_IMAGE_INPUT_SIZE, INCEPTION_V3_IMAGE_INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = resizedImage.createGraphics();
-		graphics.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+		graphics.drawImage(originalImage, 0, 0, INCEPTION_V3_IMAGE_INPUT_SIZE, INCEPTION_V3_IMAGE_INPUT_SIZE, null);
 		graphics.dispose();
 
 		return resizedImage;

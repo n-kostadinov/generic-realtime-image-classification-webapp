@@ -18,10 +18,10 @@ public class KafkaMessageProducer {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	@Value("${kafka.brokeraddress}")
-	private String kafkaBrokerAddress;
+	@Value("${kafka.address}")
+	private String kafkaAddress;
 	
-	@Value("${kafka.imagetopic}")
+	@Value("${kafka.topic.classificationimage}")
 	private String kafkaImageTopic;
 	
 	private Producer<String, String> kafkaProducer;
@@ -29,22 +29,30 @@ public class KafkaMessageProducer {
 	@PostConstruct
 	private void initialize() {
 		
-//		Properties properties = new Properties();
-//		properties.put("bootstrap.servers", kafkaBrokerAddress);
-//		properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//		properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+		Properties properties = new Properties();
+		properties.put("bootstrap.servers", kafkaAddress);
+		properties.put("acks", "all");
+		properties.put("retries", 0);
+		properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+		properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
 		
-//		kafkaProducer = new KafkaProducer<>(properties);
+		kafkaProducer = new KafkaProducer<>(properties);
 	}	
 	
-	public void publish(String pngImage) {
-		logger.info("Sending encoded image " + pngImage.length());
-//		this.kafkaProducer.send(new ProducerRecord<String, String>(kafkaImageTopic, pngImage));
+	public void publish(String base64EncodedJPEGImage) {
+		logger.info(String.format(
+				"Sending encoded image, broker address %s, topic %s, size %d",
+				kafkaAddress, 
+				kafkaImageTopic,
+				base64EncodedJPEGImage.length()));
+		
+		this.kafkaProducer.send(new ProducerRecord<String, String>(kafkaImageTopic, base64EncodedJPEGImage));
 	}
 	
 	@PreDestroy
 	public void close() {
-//		this.kafkaProducer.close();
+		this.kafkaProducer.close();
 	}
 	
 }
